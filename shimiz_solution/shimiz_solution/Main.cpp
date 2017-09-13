@@ -1,4 +1,5 @@
 ﻿# include <Siv3D.hpp>
+#include"include.h"
 
 String GetStringType(JSONValue::ValueType type) {
 	switch(type){
@@ -24,32 +25,20 @@ void Main() {
 
 	const JSONReader json(L"data.json");
 
-	Array<Vec2> nodes;
-	Array<Array<Vec2>> pieces;
+	Array<Defined> piece;
+
+	for (const auto a : json[L"sy"].getArray()) {
+		piece.emplace_back(a);
+	}
 
 	int i = 0;
 
-	for (const auto a : json[L"sy"].getArray()) {
-		for (const auto node : a[L"points"].getArray()) {
-			nodes.push_back({ node[L"x"].get<int>(),node[L"y"].get<int>() });
-		}
-		pieces.push_back(nodes);
-		nodes.clear();
-	}
-
-	for (auto &nodes : pieces) {
-		for (auto &node : nodes) {
-			node.x *= 5;
-			node.y *= 5;
-		}
-	}
-
 	while (System::Update()) {
-		if (i >= pieces.size()) {
+		if (i == piece.size()) {
 			i = 0;
 		}
 
-		Polygon(pieces[i]).draw(10, 10);
+		piece[i].edge_length_acquisition();
 
 		if (System::FrameCount() % 180 == 0) {
 			i++;
