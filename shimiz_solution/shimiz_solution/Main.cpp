@@ -19,9 +19,10 @@ void Main() {
 			i = 0;
 		}
 
-		piece[i].id_acquisition();
+		piece[i].draw();
+		piece[i].printangle();
 
-		if (System::FrameCount() % 180 == 0) {
+		if (Input::KeyN.clicked) {
 			i++;
 		}
 	}

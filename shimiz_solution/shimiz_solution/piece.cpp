@@ -3,16 +3,36 @@
 void Defined::edge_length_acquisition() {
 	for (int i = 0; i < node_count; i++) {
 		if (i == node_count - 1) {
-			edge_length.push_back(Line(nodes[i], nodes[0]).length());
+			edge_length.push_back(Line(nodes[i], nodes[0]).lengthSq());
 		}
 		else {
-			edge_length.push_back(Line(nodes[i], nodes[i + 1]).length());
+			edge_length.push_back(Line(nodes[i], nodes[i + 1]).lengthSq());
 		}
 	}
 }
 
 void Defined::angle_acquisition() {
+	double inside;
+	double numerator, denominator, a2;
+	Line me;
 
+	for (int i = 0; i < node_count; i++) {
+		me = Line(nodes[i - 1 < 0 ? node_count - 1 : i - 1], nodes[i == node_count - 1 ? 0 : i + 1]);
+
+		a2 = me.lengthSq();
+
+		numerator = edge_length[i] + edge_length[i - 1 < 0 ? node_count - 1 : i - 1] - a2;
+		denominator = 2 * sqrt(edge_length[i])*sqrt(edge_length[i - 1 < 0 ? node_count - 1 : i - 1]);
+
+		if (entity.intersects(me.asPolygon())) {
+			inside = Math::Degrees(Math::Acos(numerator / denominator));
+		}
+		else {
+			inside = Math::Degrees(TwoPi - Math::Acos(numerator / denominator));
+		}
+
+		angle.push_back(inside);
+	}
 }
 
 
@@ -29,6 +49,17 @@ Defined::Defined(JSONValue object) {
 
 uint8 Defined::id_acquisition() {
 	return id;
+}
+
+void Defined::draw() {
+	entity.draw(100, 10);
+}
+
+void Defined::printangle() {
+	ClearPrint();
+	for (int i = 0; i < node_count; i++) {
+		Println(angle[i]);
+	}
 }
 
 Piece::Piece(JSONValue object) :Defined(object){

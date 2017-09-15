@@ -37,6 +37,9 @@ public:
 	/// </summary>
 	/// <returns>id</returns>
 	uint8 id_acquisition();
+
+	void draw();
+	void printangle();
 };
 
 class Piece :public Defined {
