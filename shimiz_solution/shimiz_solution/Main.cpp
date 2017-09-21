@@ -5,6 +5,7 @@ void Main() {
 	Window::Resize(1280, 720);
 
 	const JSONReader json(L"data.json");
+	//const JSONReader json(L"hoge.json");
 
 	Array<Piece> piece;
 
@@ -15,6 +16,9 @@ void Main() {
 	int i = 0;
 
 	while (System::Update()) {
+		/*for (auto hoge : piece) {
+			hoge.draw();
+		}*/
 		if (i == piece.size()) {
 			i = 0;
 		}

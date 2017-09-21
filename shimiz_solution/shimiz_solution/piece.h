@@ -44,8 +44,23 @@ public:
 
 class Piece :public Defined {
 private:
-	merge target;
-	merge source;
+	merge join_target;
+	merge join_source;
 public:
+	/// <summary>
+	/// コンストラクタ
+	/// </summary>
+	/// <param name="object">形状データ</param>
 	Piece(JSONValue object);
+
+	/// <summary>
+	/// ピースの結合
+	/// </summary>
+	/// <param name="target">結合先のピース</param>
+	/// <param name="target_no">頂点番号</param>
+	/// <param name="target_dir">結合方向</param>
+	/// <param name="source">結合元のピース</param>
+	/// <param name="source_no">頂点番号</param>
+	/// <param name="source_dir">結合方向</param>
+	void synthesis(Piece target, uint8 target_no, String target_dir, Piece source, uint8 source_no, String source_dir);
 };

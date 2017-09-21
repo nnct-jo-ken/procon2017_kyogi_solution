@@ -12,26 +12,24 @@ void Defined::edge_length_acquisition() {
 }
 
 void Defined::angle_acquisition() {
-	double inside;
-	double numerator, denominator, a2;
-	Line me;
+	double inside, arg_diff;
+	Vec2 Z_1, Z_2, unit_1, unit_2, arg;
 
 	for (int i = 0; i < node_count; i++) {
-		me = Line(nodes[i - 1 < 0 ? node_count - 1 : i - 1], nodes[i == node_count - 1 ? 0 : i + 1]);
+		Z_1 = nodes[i - 1 < 0 ? node_count - 1 : i - 1] - nodes[i];
+		Z_2 = nodes[i == node_count - 1 ? 0 : i + 1] - nodes[i];
 
-		a2 = me.lengthSq();
+		unit_1 = Z_1 / Z_1.length();
+		unit_2 = Z_2 / Z_2.length();
 
-		numerator = edge_length[i] + edge_length[i - 1 < 0 ? node_count - 1 : i - 1] - a2;
-		denominator = 2 * sqrt(edge_length[i])*sqrt(edge_length[i - 1 < 0 ? node_count - 1 : i - 1]);
+		arg = Vec2((unit_1.x*unit_2.x + unit_1.y*unit_2.y) / unit_2.lengthSq(),
+			(unit_1.y*unit_2.x - unit_1.x*unit_2.y) / unit_2.lengthSq());
 
-		if (entity.intersects(me.asPolygon())) {
-			inside = Math::Degrees(Math::Acos(numerator / denominator));
-		}
-		else {
-			inside = Math::Degrees(TwoPi - Math::Acos(numerator / denominator));
-		}
+		arg_diff = arg.y < 0 ? Math::Acos(arg.x) : -Math::Acos(arg.x);
 
-		angle.push_back(inside);
+		inside = TwoPi - arg_diff < TwoPi ? TwoPi - arg_diff : -arg_diff;
+
+		angle.push_back(Math::Degrees(inside));
 	}
 }
 
@@ -53,6 +51,7 @@ uint8 Defined::id_acquisition() {
 
 void Defined::draw() {
 	entity.draw(100, 10);
+	//entity.drawFrame(1.0, Palette::Red);
 }
 
 void Defined::printangle() {
@@ -63,11 +62,21 @@ void Defined::printangle() {
 }
 
 Piece::Piece(JSONValue object) :Defined(object){
-	target.dir = object[L"synthesis"][L"target"][L"dir"].getOr<String>(L"\0");
-	target.id = object[L"synthesis"][L"target"][L"sy_id"].getOr<uint8>(NULL);
-	target.node_no = object[L"synthesis"][L"target"][L"num"].getOr<uint8>(NULL);
+	join_target.dir = object[L"synthesis"][L"target"][L"dir"].getOr<String>(L"\0");
+	join_target.id = object[L"synthesis"][L"target"][L"sy_id"].getOr<uint8>(NULL);
+	join_target.node_no = object[L"synthesis"][L"target"][L"num"].getOr<uint8>(NULL);
 
-	source.dir = object[L"synthesis"][L"source"][L"dir"].getOr<String>(L"\0");
-	source.id = object[L"synthesis"][L"source"][L"sy_id"].getOr<uint8>(NULL);
-	source.node_no = object[L"synthesis"][L"source"][L"num"].getOr<uint8>(NULL);
+	join_source.dir = object[L"synthesis"][L"source"][L"dir"].getOr<String>(L"\0");
+	join_source.id = object[L"synthesis"][L"source"][L"sy_id"].getOr<uint8>(NULL);
+	join_source.node_no = object[L"synthesis"][L"source"][L"num"].getOr<uint8>(NULL);
+}
+
+void Piece::synthesis(Piece target, uint8 target_no, String target_dir, Piece source, uint8 source_no, String source_dir) {
+	join_target.dir = target_dir;
+	join_target.id = target.id_acquisition();
+	join_target.node_no = target_no;
+
+	join_source.dir = source_dir;
+	join_source.id = source.id_acquisition();
+	join_source.node_no = source_no;
 }
